@@ -1,4 +1,4 @@
-name: Android APK Build
+name: Android APK and AAB Build
 
 on:
   push:
@@ -55,6 +55,10 @@ jobs:
         if: env.HAS_RELEASE_SECRETS == 'true'
         run: gradle :app:assembleRelease --stacktrace
 
+      - name: Build signed release AAB
+        if: env.HAS_RELEASE_SECRETS == 'true'
+        run: gradle :app:bundleRelease --stacktrace
+
       - name: Explain missing release signing secrets
         if: env.HAS_RELEASE_SECRETS != 'true'
         run: |
@@ -73,3 +77,10 @@ jobs:
         with:
           name: 3d-live-wallpapers-release-signed-apk
           path: app/build/outputs/apk/release/*.apk
+
+      - name: Upload signed release AAB
+        if: env.HAS_RELEASE_SECRETS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3d-live-wallpapers-release-signed-aab
+          path: app/build/outputs/bundle/release/*.aab
