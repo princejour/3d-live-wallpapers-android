@@ -12,6 +12,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+      KEYSTORE_FILE: ${{ github.workspace }}/app/release-keystore.jks
+      KS_B64: ${{ secrets.KS_B64 }}
+      STORE_PASS: ${{ secrets.STORE_PASS }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASS: ${{ secrets.KEY_PASS }}
+      HAS_RELEASE_SECRETS: ${{ secrets.KS_B64 != '' && secrets.STORE_PASS != '' && secrets.KEY_ALIAS != '' && secrets.KEY_PASS != '' }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,8 +46,30 @@ jobs:
       - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace
 
+      - name: Decode release keystore
+        if: env.HAS_RELEASE_SECRETS == 'true'
+        run: |
+          printf '%s' "$KS_B64" | base64 --decode > "$KEYSTORE_FILE"
+
+      - name: Build signed release APK
+        if: env.HAS_RELEASE_SECRETS == 'true'
+        run: gradle :app:assembleRelease --stacktrace
+
+      - name: Explain missing release signing secrets
+        if: env.HAS_RELEASE_SECRETS != 'true'
+        run: |
+          echo "Release signing secrets are missing. Debug APK was built only."
+          echo "Add GitHub Secrets: KS_B64, STORE_PASS, KEY_ALIAS, KEY_PASS."
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: 3d-live-wallpapers-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+
+      - name: Upload signed release APK
+        if: env.HAS_RELEASE_SECRETS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3d-live-wallpapers-release-signed-apk
+          path: app/build/outputs/apk/release/*.apk
