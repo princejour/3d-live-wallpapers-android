@@ -32,6 +32,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
+import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
@@ -50,7 +51,6 @@ class MainActivity : Activity() {
     )
 
     private val categories = listOf("All", "Islamic", "Sports", "Luxury", "Nature", "Love", "3D / Abstract")
-
     private fun photo(tags: String, lock: Int): String = "https://loremflickr.com/1080/1920/$tags?lock=$lock"
 
     private val wallpapers = listOf(
@@ -59,67 +59,56 @@ class MainActivity : Activity() {
         WallpaperItem("live_islamic_03", "Ramadan Lantern", WallpaperType.LIVE, "Islamic", photo("ramadan,lantern", 1103), "particles"),
         WallpaperItem("live_islamic_04", "Crescent Sky", WallpaperType.LIVE, "Islamic", photo("crescent,night", 1104), "stars"),
         WallpaperItem("live_islamic_05", "Prayer Calm", WallpaperType.LIVE, "Islamic", photo("prayer,mosque", 1105), "slow_zoom"),
-
         WallpaperItem("live_sports_01", "Football Stadium", WallpaperType.LIVE, "Sports", photo("football,stadium", 1201), "stadium"),
         WallpaperItem("live_sports_02", "Soccer Energy", WallpaperType.LIVE, "Sports", photo("soccer,ball", 1202), "energy"),
         WallpaperItem("live_sports_03", "Champion Arena", WallpaperType.LIVE, "Sports", photo("sports,arena", 1203), "stadium"),
         WallpaperItem("live_sports_04", "Running Power", WallpaperType.LIVE, "Sports", photo("running,athlete", 1204), "energy"),
         WallpaperItem("live_sports_05", "Basketball Lights", WallpaperType.LIVE, "Sports", photo("basketball,court", 1205), "stadium"),
-
         WallpaperItem("live_luxury_01", "Black Gold Motion", WallpaperType.LIVE, "Luxury", photo("luxury,gold", 1301), "gold"),
         WallpaperItem("live_luxury_02", "Premium Car Shine", WallpaperType.LIVE, "Luxury", photo("luxury,car", 1302), "shine"),
         WallpaperItem("live_luxury_03", "Diamond Glow", WallpaperType.LIVE, "Luxury", photo("diamond,jewelry", 1303), "shine"),
         WallpaperItem("live_luxury_04", "Luxury Hotel Night", WallpaperType.LIVE, "Luxury", photo("luxury,hotel", 1304), "slow_zoom"),
         WallpaperItem("live_luxury_05", "Elegant Watch", WallpaperType.LIVE, "Luxury", photo("luxury,watch", 1305), "gold"),
-
         WallpaperItem("live_nature_01", "Ocean Waves", WallpaperType.LIVE, "Nature", photo("ocean,waves", 1401), "wave"),
         WallpaperItem("live_nature_02", "Rain Forest", WallpaperType.LIVE, "Nature", photo("rain,forest", 1402), "rain"),
         WallpaperItem("live_nature_03", "Mountain Clouds", WallpaperType.LIVE, "Nature", photo("mountain,clouds", 1403), "slow_zoom"),
         WallpaperItem("live_nature_04", "Waterfall Fresh", WallpaperType.LIVE, "Nature", photo("waterfall,nature", 1404), "rain"),
         WallpaperItem("live_nature_05", "Northern Sky", WallpaperType.LIVE, "Nature", photo("aurora,sky", 1405), "stars"),
-
         WallpaperItem("live_love_01", "Romantic Roses", WallpaperType.LIVE, "Love", photo("roses,love", 1501), "hearts"),
         WallpaperItem("live_love_02", "Couple Sunset", WallpaperType.LIVE, "Love", photo("couple,sunset", 1502), "hearts"),
         WallpaperItem("live_love_03", "Red Heart Glow", WallpaperType.LIVE, "Love", photo("heart,romantic", 1503), "hearts"),
         WallpaperItem("live_love_04", "Love Lights", WallpaperType.LIVE, "Love", photo("love,lights", 1504), "glow"),
         WallpaperItem("live_love_05", "Wedding Dream", WallpaperType.LIVE, "Love", photo("wedding,romantic", 1505), "slow_zoom"),
-
         WallpaperItem("live_abstract_01", "Neon City", WallpaperType.LIVE, "3D / Abstract", photo("neon,city", 1601), "neon"),
         WallpaperItem("live_abstract_02", "Galaxy Depth", WallpaperType.LIVE, "3D / Abstract", photo("galaxy,space", 1602), "stars"),
         WallpaperItem("live_abstract_03", "Cyber Light", WallpaperType.LIVE, "3D / Abstract", photo("cyberpunk,neon", 1603), "neon"),
         WallpaperItem("live_abstract_04", "Digital Abstract", WallpaperType.LIVE, "3D / Abstract", photo("abstract,technology", 1604), "particles"),
         WallpaperItem("live_abstract_05", "3D Future", WallpaperType.LIVE, "3D / Abstract", photo("futuristic,3d", 1605), "shine"),
-
         WallpaperItem("static_islamic_01", "Grand Mosque", WallpaperType.STATIC, "Islamic", photo("grand,mosque", 2101), "static"),
         WallpaperItem("static_islamic_02", "Islamic Architecture", WallpaperType.STATIC, "Islamic", photo("islamic,architecture", 2102), "static"),
         WallpaperItem("static_islamic_03", "Ramadan Night", WallpaperType.STATIC, "Islamic", photo("ramadan,night", 2103), "static"),
         WallpaperItem("static_islamic_04", "Peaceful Prayer", WallpaperType.STATIC, "Islamic", photo("muslim,prayer", 2104), "static"),
         WallpaperItem("static_islamic_05", "Crescent Moon", WallpaperType.STATIC, "Islamic", photo("crescent,moon", 2105), "static"),
-
         WallpaperItem("static_sports_01", "Football Field", WallpaperType.STATIC, "Sports", photo("football,field", 2201), "static"),
         WallpaperItem("static_sports_02", "Sports Victory", WallpaperType.STATIC, "Sports", photo("sports,victory", 2202), "static"),
         WallpaperItem("static_sports_03", "Stadium Crowd", WallpaperType.STATIC, "Sports", photo("stadium,crowd", 2203), "static"),
         WallpaperItem("static_sports_04", "Athlete Focus", WallpaperType.STATIC, "Sports", photo("athlete,training", 2204), "static"),
         WallpaperItem("static_sports_05", "Basketball Court", WallpaperType.STATIC, "Sports", photo("basketball,arena", 2205), "static"),
-
         WallpaperItem("static_luxury_01", "Luxury Interior", WallpaperType.STATIC, "Luxury", photo("luxury,interior", 2301), "static"),
         WallpaperItem("static_luxury_02", "Gold Details", WallpaperType.STATIC, "Luxury", photo("gold,luxury", 2302), "static"),
         WallpaperItem("static_luxury_03", "Premium Car", WallpaperType.STATIC, "Luxury", photo("premium,car", 2303), "static"),
         WallpaperItem("static_luxury_04", "Diamond Style", WallpaperType.STATIC, "Luxury", photo("diamond,luxury", 2304), "static"),
         WallpaperItem("static_luxury_05", "Marble Premium", WallpaperType.STATIC, "Luxury", photo("marble,luxury", 2305), "static"),
-
         WallpaperItem("static_nature_01", "Blue Ocean", WallpaperType.STATIC, "Nature", photo("blue,ocean", 2401), "static"),
         WallpaperItem("static_nature_02", "Green Forest", WallpaperType.STATIC, "Nature", photo("green,forest", 2402), "static"),
         WallpaperItem("static_nature_03", "Snow Mountain", WallpaperType.STATIC, "Nature", photo("snow,mountain", 2403), "static"),
         WallpaperItem("static_nature_04", "Sunset Lake", WallpaperType.STATIC, "Nature", photo("sunset,lake", 2404), "static"),
         WallpaperItem("static_nature_05", "Waterfall View", WallpaperType.STATIC, "Nature", photo("waterfall,landscape", 2405), "static"),
-
         WallpaperItem("static_love_01", "Red Roses", WallpaperType.STATIC, "Love", photo("red,roses", 2501), "static"),
         WallpaperItem("static_love_02", "Romantic Couple", WallpaperType.STATIC, "Love", photo("romantic,couple", 2502), "static"),
         WallpaperItem("static_love_03", "Heart Lights", WallpaperType.STATIC, "Love", photo("heart,lights", 2503), "static"),
         WallpaperItem("static_love_04", "Love Sunset", WallpaperType.STATIC, "Love", photo("love,sunset", 2504), "static"),
         WallpaperItem("static_love_05", "Wedding Rings", WallpaperType.STATIC, "Love", photo("wedding,rings", 2505), "static"),
-
         WallpaperItem("static_abstract_01", "Neon Abstract", WallpaperType.STATIC, "3D / Abstract", photo("neon,abstract", 2601), "static"),
         WallpaperItem("static_abstract_02", "Space Galaxy", WallpaperType.STATIC, "3D / Abstract", photo("space,galaxy", 2602), "static"),
         WallpaperItem("static_abstract_03", "Tech Pattern", WallpaperType.STATIC, "3D / Abstract", photo("technology,abstract", 2603), "static"),
@@ -153,7 +142,7 @@ class MainActivity : Activity() {
             typeface = Typeface.DEFAULT_BOLD
         })
         root.addView(TextView(this).apply {
-            text = "Real photos • Real motion • APK + AAB"
+            text = "Visible live motion • Real photos • APK + AAB"
             setTextColor(Color.rgb(165, 174, 200))
             textSize = 12f
             setPadding(0, dp(3), 0, dp(10))
@@ -191,15 +180,9 @@ class MainActivity : Activity() {
 
     private fun renderList(title: String, items: List<WallpaperItem>, showCategories: Boolean) {
         content.removeAllViews()
-        val scroll = ScrollView(this).apply { isFillViewport = false }
+        val scroll = ScrollView(this)
         val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(0, 0, 0, dp(42)) }
-        box.addView(TextView(this).apply {
-            text = title
-            setTextColor(Color.WHITE)
-            textSize = 20f
-            typeface = Typeface.DEFAULT_BOLD
-            setPadding(0, 0, 0, dp(8))
-        })
+        box.addView(TextView(this).apply { text = title; setTextColor(Color.WHITE); textSize = 20f; typeface = Typeface.DEFAULT_BOLD; setPadding(0, 0, 0, dp(8)) })
         if (showCategories) box.addView(categoryBar())
         if (items.isEmpty()) {
             box.addView(TextView(this).apply { text = "No favorites yet."; setTextColor(Color.rgb(170, 180, 205)); textSize = 14f; setPadding(0, dp(20), 0, 0) })
@@ -245,31 +228,17 @@ class MainActivity : Activity() {
         frame.addView(RealPhotoView(this, item.imageUrl, item.motion, item.type == WallpaperType.LIVE), FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         frame.addView(TextView(this).apply {
             text = if (item.type == WallpaperType.LIVE) "LIVE" else "STATIC"
-            setTextColor(Color.WHITE)
-            textSize = 9f
-            typeface = Typeface.DEFAULT_BOLD
-            gravity = Gravity.CENTER
-            background = rounded(Color.argb(165, 0, 0, 0), dp(10))
-            setPadding(dp(7), dp(3), dp(7), dp(3))
+            setTextColor(Color.WHITE); textSize = 9f; typeface = Typeface.DEFAULT_BOLD; gravity = Gravity.CENTER
+            background = rounded(Color.argb(165, 0, 0, 0), dp(10)); setPadding(dp(7), dp(3), dp(7), dp(3))
         }, FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.START).apply { setMargins(dp(6), dp(6), 0, 0) })
         frame.addView(TextView(this).apply {
             text = if (favoriteIds.contains(item.id)) "★" else "☆"
-            setTextColor(Color.WHITE)
-            textSize = 24f
-            gravity = Gravity.CENTER
-            setShadowLayer(8f, 0f, 2f, Color.BLACK)
-            setOnClickListener {
-                toggleFavorite(item)
-                if (showingFavorites) renderFavorites() else renderHome()
-            }
+            setTextColor(Color.WHITE); textSize = 24f; gravity = Gravity.CENTER; setShadowLayer(8f, 0f, 2f, Color.BLACK)
+            setOnClickListener { toggleFavorite(item); if (showingFavorites) renderFavorites() else renderHome() }
         }, FrameLayout.LayoutParams(dp(40), dp(40), Gravity.TOP or Gravity.END))
         frame.addView(TextView(this).apply {
             text = item.title
-            setTextColor(Color.WHITE)
-            textSize = 12f
-            typeface = Typeface.DEFAULT_BOLD
-            setShadowLayer(10f, 0f, 3f, Color.BLACK)
-            setPadding(dp(7), 0, dp(7), dp(7))
+            setTextColor(Color.WHITE); textSize = 12f; typeface = Typeface.DEFAULT_BOLD; setShadowLayer(10f, 0f, 3f, Color.BLACK); setPadding(dp(7), 0, dp(7), dp(7))
         }, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM or Gravity.START))
         frame.layoutParams = LinearLayout.LayoutParams(0, dp(180), 1f).apply { setMargins(dp(3), dp(3), dp(3), dp(8)) }
         return frame
@@ -280,7 +249,7 @@ class MainActivity : Activity() {
         val scroll = ScrollView(this)
         val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(0, 0, 0, dp(42)) }
         box.addView(TextView(this).apply { text = item.title; setTextColor(Color.WHITE); textSize = 22f; typeface = Typeface.DEFAULT_BOLD })
-        box.addView(TextView(this).apply { text = "${item.category} • ${if (item.type == WallpaperType.LIVE) "Real animated live wallpaper" else "Real static wallpaper"}"; setTextColor(Color.rgb(170, 180, 205)); textSize = 13f; setPadding(0, dp(3), 0, dp(10)) })
+        box.addView(TextView(this).apply { text = "${item.category} • ${if (item.type == WallpaperType.LIVE) "visible animated live wallpaper" else "static wallpaper"}"; setTextColor(Color.rgb(170, 180, 205)); textSize = 13f; setPadding(0, dp(3), 0, dp(10)) })
         box.addView(RealPhotoView(this, item.imageUrl, item.motion, item.type == WallpaperType.LIVE), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(420)).apply { setMargins(0, 0, 0, dp(12)) })
         box.addView(action(if (favoriteIds.contains(item.id)) "Remove from Favorites" else "Add to Favorites") { toggleFavorite(item); openPreview(item) })
         if (item.type == WallpaperType.LIVE) box.addView(action("Set as Live Wallpaper") { saveLive(item); openLiveWallpaperPicker() }) else box.addView(action("Set as Static Wallpaper") { setStatic(item) })
@@ -290,14 +259,8 @@ class MainActivity : Activity() {
     }
 
     private fun action(label: String, onClick: () -> Unit): TextView = TextView(this).apply {
-        text = label
-        setTextColor(Color.WHITE)
-        textSize = 15f
-        typeface = Typeface.DEFAULT_BOLD
-        gravity = Gravity.CENTER
-        background = rounded(Color.rgb(35, 43, 80), dp(16))
-        setPadding(dp(12), dp(12), dp(12), dp(12))
-        setOnClickListener { onClick() }
+        text = label; setTextColor(Color.WHITE); textSize = 15f; typeface = Typeface.DEFAULT_BOLD; gravity = Gravity.CENTER
+        background = rounded(Color.rgb(35, 43, 80), dp(16)); setPadding(dp(12), dp(12), dp(12), dp(12)); setOnClickListener { onClick() }
         layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { setMargins(0, 0, 0, dp(9)) }
     }
 
@@ -307,7 +270,11 @@ class MainActivity : Activity() {
     }
 
     private fun saveLive(item: WallpaperItem) {
-        prefs.edit().putString("live_image_url", item.imageUrl).putString("live_title", item.title).putString("live_motion", item.motion).apply()
+        prefs.edit()
+            .putString("live_image_url", item.imageUrl)
+            .putString("live_title", item.title)
+            .putString("live_motion", item.motion)
+            .apply()
     }
 
     private fun openLiveWallpaperPicker() {
@@ -319,16 +286,11 @@ class MainActivity : Activity() {
     private fun setStatic(item: WallpaperItem) {
         Toast.makeText(this, "Downloading wallpaper...", Toast.LENGTH_SHORT).show()
         RemoteBitmapStore.load(item.imageUrl) { bitmap ->
-            if (bitmap == null) {
-                Toast.makeText(this, "Image download failed", Toast.LENGTH_LONG).show()
-            } else {
-                try {
-                    WallpaperManager.getInstance(this).setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-                    Toast.makeText(this, "Static wallpaper applied", Toast.LENGTH_SHORT).show()
-                } catch (_: Exception) {
-                    Toast.makeText(this, "Could not set wallpaper", Toast.LENGTH_LONG).show()
-                }
-            }
+            if (bitmap == null) Toast.makeText(this, "Image download failed", Toast.LENGTH_LONG).show()
+            else try {
+                WallpaperManager.getInstance(this).setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                Toast.makeText(this, "Static wallpaper applied", Toast.LENGTH_SHORT).show()
+            } catch (_: Exception) { Toast.makeText(this, "Could not set wallpaper", Toast.LENGTH_LONG).show() }
         }
     }
 
@@ -338,17 +300,14 @@ class MainActivity : Activity() {
 
 class RealPhotoView(context: Context, private val imageUrl: String, private val motion: String, private val animate: Boolean) : View(context) {
     private var bitmap: Bitmap? = null
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-
     init {
         setBackgroundColor(Color.rgb(10, 14, 30))
         RemoteBitmapStore.load(imageUrl) { loaded -> bitmap = loaded; invalidate() }
     }
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         RealWallpaperRenderer.draw(canvas, bitmap, motion, animate, true)
-        if (animate) postInvalidateDelayed(33L)
+        if (animate) postInvalidateDelayed(16L)
     }
 }
 
@@ -356,7 +315,6 @@ object RemoteBitmapStore {
     private val cache = ConcurrentHashMap<String, Bitmap>()
     private val executor = Executors.newFixedThreadPool(4)
     private val main = Handler(Looper.getMainLooper())
-
     fun load(url: String, callback: (Bitmap?) -> Unit) {
         cache[url]?.let { callback(it); return }
         executor.execute {
@@ -368,9 +326,7 @@ object RemoteBitmapStore {
                 connection.setRequestProperty("User-Agent", "Mozilla/5.0")
                 connection.connect()
                 BitmapFactory.decodeStream(connection.inputStream)
-            } catch (_: Exception) {
-                null
-            }
+            } catch (_: Exception) { null }
             if (bitmap != null) cache[url] = bitmap
             main.post { callback(bitmap) }
         }
@@ -385,36 +341,36 @@ object RealWallpaperRenderer {
         val h = canvas.height.toFloat()
         val t = if (animate) System.currentTimeMillis() / 1000f else 0f
         canvas.drawColor(Color.rgb(7, 10, 24))
-        if (bitmap == null) {
-            drawLoading(canvas, w, h, t)
-        } else {
-            drawPhoto(canvas, bitmap, w, h, t, animate)
-            if (overlay && animate) drawMotionOverlay(canvas, w, h, t, motion)
+        if (bitmap == null) drawLoading(canvas, w, h, t) else drawPhoto(canvas, bitmap, w, h, t, animate)
+        if (animate && overlay) {
+            drawStrongOverlay(canvas, w, h, t, motion)
+            drawLiveMotionBadge(canvas, w, h, t)
         }
         drawVignette(canvas, w, h)
     }
 
     private fun drawPhoto(canvas: Canvas, bitmap: Bitmap, w: Float, h: Float, t: Float, animate: Boolean) {
         val baseScale = max(w / bitmap.width, h / bitmap.height)
-        val motionScale = if (animate) 1.08f + 0.025f * sin(t * 0.35f) else 1f
-        val scaledW = bitmap.width * baseScale * motionScale
-        val scaledH = bitmap.height * baseScale * motionScale
-        val dx = if (animate) sin(t * 0.18f) * (scaledW - w) * 0.22f else 0f
-        val dy = if (animate) sin(t * 0.13f) * (scaledH - h) * 0.18f else 0f
+        val pulse = if (animate) 1.16f + 0.08f * sin(t * 0.9f) else 1f
+        val scaledW = bitmap.width * baseScale * pulse
+        val scaledH = bitmap.height * baseScale * pulse
+        val dx = if (animate) sin(t * 0.75f) * w * 0.08f else 0f
+        val dy = if (animate) cos(t * 0.55f) * h * 0.055f else 0f
         val left = (w - scaledW) / 2f + dx
         val top = (h - scaledH) / 2f + dy
         canvas.drawBitmap(bitmap, null, RectF(left, top, left + scaledW, top + scaledH), paint)
     }
 
-    private fun drawMotionOverlay(canvas: Canvas, w: Float, h: Float, t: Float, motion: String) {
+    private fun drawStrongOverlay(canvas: Canvas, w: Float, h: Float, t: Float, motion: String) {
+        drawMovingLightBand(canvas, w, h, t)
         when (motion) {
             "rain" -> drawRain(canvas, w, h, t)
             "hearts" -> drawHearts(canvas, w, h, t)
-            "stars" -> drawParticles(canvas, w, h, t, Color.WHITE)
-            "stadium", "energy" -> drawLightSweeps(canvas, w, h, t)
-            "gold", "shine", "glow", "neon" -> drawGlow(canvas, w, h, t)
-            "wave" -> drawWaveTint(canvas, w, h, t)
-            else -> drawParticles(canvas, w, h, t, Color.WHITE)
+            "stars" -> drawParticles(canvas, w, h, t, Color.WHITE, 58)
+            "stadium", "energy" -> drawStadiumLights(canvas, w, h, t)
+            "wave" -> drawWaves(canvas, w, h, t)
+            "gold", "shine", "glow", "neon", "particles" -> drawParticles(canvas, w, h, t, Color.WHITE, 42)
+            else -> drawParticles(canvas, w, h, t, Color.WHITE, 42)
         }
     }
 
@@ -422,50 +378,46 @@ object RealWallpaperRenderer {
         paint.shader = LinearGradient(0f, 0f, w, h, intArrayOf(Color.rgb(15, 20, 42), Color.rgb(45, 58, 95), Color.rgb(5, 8, 22)), null, Shader.TileMode.CLAMP)
         canvas.drawRect(0f, 0f, w, h, paint)
         paint.shader = null
-        paint.color = Color.argb(130, 255, 255, 255)
+        paint.color = Color.argb(190, 255, 255, 255)
         paint.textSize = min(w, h) * 0.055f
         paint.typeface = Typeface.DEFAULT_BOLD
-        canvas.drawText("Loading real photo...", w * 0.11f, h * 0.5f + sin(t * 3f) * 10f, paint)
+        canvas.drawText("Loading motion...", w * 0.11f, h * 0.5f + sin(t * 4f) * 16f, paint)
     }
 
-    private fun drawVignette(canvas: Canvas, w: Float, h: Float) {
-        paint.shader = LinearGradient(0f, 0f, 0f, h, intArrayOf(Color.argb(95, 0, 0, 0), Color.TRANSPARENT, Color.argb(145, 0, 0, 0)), null, Shader.TileMode.CLAMP)
+    private fun drawMovingLightBand(canvas: Canvas, w: Float, h: Float, t: Float) {
+        val x = ((sin(t * 1.15f) + 1f) / 2f) * (w + w * 0.7f) - w * 0.35f
+        paint.shader = LinearGradient(x - w * 0.25f, 0f, x + w * 0.25f, h, intArrayOf(Color.TRANSPARENT, Color.argb(120, 255, 255, 255), Color.TRANSPARENT), null, Shader.TileMode.CLAMP)
         canvas.drawRect(0f, 0f, w, h, paint)
         paint.shader = null
     }
 
-    private fun drawGlow(canvas: Canvas, w: Float, h: Float, t: Float) {
-        paint.color = Color.argb(90, 255, 235, 160)
-        for (i in 0..4) canvas.drawCircle(w * (0.18f + i * 0.2f), h * (0.22f + 0.05f * sin(t + i)), w * (0.12f + i * 0.01f), paint)
-    }
-
-    private fun drawParticles(canvas: Canvas, w: Float, h: Float, t: Float, color: Int) {
+    private fun drawParticles(canvas: Canvas, w: Float, h: Float, t: Float, color: Int, count: Int) {
         paint.color = color
-        for (i in 0..34) {
-            paint.alpha = 60 + (i % 5) * 24
-            val x = w * (((i * 37) % 100) / 100f)
-            val y = (h * (((i * 53) % 100) / 100f) + t * (16 + i % 6 * 4)) % h
-            canvas.drawCircle(x, y, 1.6f + i % 4, paint)
+        for (i in 0..count) {
+            paint.alpha = 85 + (i % 5) * 30
+            val x = (w * (((i * 37) % 100) / 100f) + sin(t * 1.4f + i) * w * 0.08f) % w
+            val y = (h * (((i * 53) % 100) / 100f) + t * (38 + i % 6 * 10)) % h
+            canvas.drawCircle(x, y, 2.8f + i % 6, paint)
         }
         paint.alpha = 255
     }
 
     private fun drawRain(canvas: Canvas, w: Float, h: Float, t: Float) {
-        paint.color = Color.argb(135, 210, 235, 255)
-        paint.strokeWidth = 2.4f
-        for (i in 0..54) {
+        paint.color = Color.argb(180, 210, 235, 255)
+        paint.strokeWidth = 3.2f
+        for (i in 0..70) {
             val x = w * (((i * 29) % 100) / 100f)
-            val y = (h * (((i * 47) % 100) / 100f) + t * (130 + i % 8 * 12)) % h
-            canvas.drawLine(x, y, x - 14f, y + 38f, paint)
+            val y = (h * (((i * 47) % 100) / 100f) + t * (220 + i % 8 * 20)) % h
+            canvas.drawLine(x, y, x - 18f, y + 52f, paint)
         }
     }
 
     private fun drawHearts(canvas: Canvas, w: Float, h: Float, t: Float) {
-        paint.color = Color.argb(95, 255, 220, 230)
-        for (i in 0..11) {
-            val x = w * (0.12f + i * 0.075f)
-            val y = h * 0.9f - ((t * 42 + i * 91) % (h * 0.72f))
-            drawHeart(canvas, x, y, 8f + i % 6)
+        paint.color = Color.argb(145, 255, 210, 225)
+        for (i in 0..17) {
+            val x = w * (0.08f + i * 0.055f) + sin(t + i) * 18f
+            val y = h * 0.95f - ((t * 90 + i * 71) % (h * 0.85f))
+            drawHeart(canvas, x, y, 9f + i % 8)
         }
     }
 
@@ -477,29 +429,45 @@ object RealWallpaperRenderer {
         canvas.drawPath(path, paint)
     }
 
-    private fun drawLightSweeps(canvas: Canvas, w: Float, h: Float, t: Float) {
-        paint.color = Color.argb(100, 255, 255, 255)
-        paint.strokeWidth = 3f
-        for (i in 0..5) {
-            val startX = w * (0.12f + i * 0.16f)
-            val endX = w * (0.5f + sin(t + i) * 0.3f)
-            canvas.drawLine(startX, 0f, endX, h * 0.7f, paint)
+    private fun drawStadiumLights(canvas: Canvas, w: Float, h: Float, t: Float) {
+        paint.color = Color.argb(150, 255, 255, 255)
+        paint.strokeWidth = 4.5f
+        for (i in 0..8) {
+            val startX = w * (0.05f + i * 0.12f)
+            val endX = w * (0.5f + sin(t * 1.4f + i) * 0.45f)
+            canvas.drawLine(startX, 0f, endX, h * 0.72f, paint)
         }
     }
 
-    private fun drawWaveTint(canvas: Canvas, w: Float, h: Float, t: Float) {
-        paint.color = Color.argb(70, 120, 220, 255)
-        val path = Path()
-        val base = h * 0.65f
-        path.moveTo(0f, h)
-        path.lineTo(0f, base)
-        var x = 0f
-        while (x <= w) {
-            path.lineTo(x, base + sin(x / w * 7f + t) * 25f)
-            x += 22f
+    private fun drawWaves(canvas: Canvas, w: Float, h: Float, t: Float) {
+        for (layer in 0..3) {
+            paint.color = Color.argb(90 + layer * 20, 110, 220, 255)
+            val path = Path()
+            val base = h * (0.58f + layer * 0.08f)
+            path.moveTo(0f, h)
+            path.lineTo(0f, base)
+            var x = 0f
+            while (x <= w) {
+                path.lineTo(x, base + sin(x / w * 8f + t * (1.8f + layer * 0.25f)) * (24f + layer * 8f))
+                x += 18f
+            }
+            path.lineTo(w, h)
+            path.close()
+            canvas.drawPath(path, paint)
         }
-        path.lineTo(w, h)
-        path.close()
-        canvas.drawPath(path, paint)
+    }
+
+    private fun drawLiveMotionBadge(canvas: Canvas, w: Float, h: Float, t: Float) {
+        val pulse = ((sin(t * 4f) + 1f) / 2f)
+        paint.shader = null
+        paint.color = Color.argb((115 + pulse * 100).toInt(), 255, 255, 255)
+        canvas.drawCircle(w * 0.12f + pulse * 16f, h * 0.13f, 7f + pulse * 4f, paint)
+    }
+
+    private fun drawVignette(canvas: Canvas, w: Float, h: Float) {
+        paint.shader = LinearGradient(0f, 0f, 0f, h, intArrayOf(Color.argb(100, 0, 0, 0), Color.TRANSPARENT, Color.argb(165, 0, 0, 0)), null, Shader.TileMode.CLAMP)
+        canvas.drawRect(0f, 0f, w, h, paint)
+        paint.shader = null
+        paint.alpha = 255
     }
 }
