@@ -262,7 +262,12 @@ class MainActivity : Activity() {
         box.addView(TextView(this).apply { text = "${item.category} • ${if (item.type == WallpaperType.LIVE) "animated" else "static"}"; setTextColor(Color.rgb(170, 180, 205)); textSize = 12f; setPadding(0, dp(2), 0, dp(7)) })
         box.addView(RealPhotoView(this, item.imageUrl, item.motion, item.type == WallpaperType.LIVE), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(280)).apply { setMargins(0, 0, 0, dp(9)) })
         box.addView(action(if (favoriteIds.contains(item.id)) "Remove from Favorites" else "Add to Favorites") { toggleFavorite(item); openPreview(item) })
-        if (item.type == WallpaperType.LIVE) box.addView(action("Set as Live Wallpaper") { saveLive(item); openLiveWallpaperPicker() }) else box.addView(action("Set as Static Wallpaper") { setStatic(item) })
+        if (item.type == WallpaperType.LIVE) {
+            box.addView(action("Set as Live Wallpaper") { saveLive(item); openLiveWallpaperPicker() })
+        } else {
+            box.addView(action("Set on Home Screen") { setStatic(item, WallpaperManager.FLAG_SYSTEM, "Home screen wallpaper applied") })
+            box.addView(action("Set on Lock Screen") { setStatic(item, WallpaperManager.FLAG_LOCK, "Lock screen wallpaper applied") })
+        }
         box.addView(action("Back") { if (showingFavorites) renderFavorites() else renderHome() })
         scroll.addView(box)
         content.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
@@ -289,14 +294,19 @@ class MainActivity : Activity() {
         try { startActivity(intent) } catch (_: Exception) { startActivity(Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER)) }
     }
 
-    private fun setStatic(item: WallpaperItem) {
+    private fun setStatic(item: WallpaperItem, targetFlag: Int, successMessage: String) {
         Toast.makeText(this, "Downloading wallpaper...", Toast.LENGTH_SHORT).show()
         RemoteBitmapStore.load(item.imageUrl) { bitmap ->
-            if (bitmap == null) Toast.makeText(this, "Image download failed", Toast.LENGTH_LONG).show()
-            else try {
-                WallpaperManager.getInstance(this).setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-                Toast.makeText(this, "Static wallpaper applied", Toast.LENGTH_SHORT).show()
-            } catch (_: Exception) { Toast.makeText(this, "Could not set wallpaper", Toast.LENGTH_LONG).show() }
+            if (bitmap == null) {
+                Toast.makeText(this, "Image download failed", Toast.LENGTH_LONG).show()
+            } else {
+                try {
+                    WallpaperManager.getInstance(this).setBitmap(bitmap, null, true, targetFlag)
+                    Toast.makeText(this, successMessage, Toast.LENGTH_SHORT).show()
+                } catch (_: Exception) {
+                    Toast.makeText(this, "Could not set wallpaper", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
