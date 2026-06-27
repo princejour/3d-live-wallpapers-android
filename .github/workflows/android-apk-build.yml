@@ -43,7 +43,7 @@ jobs:
         with:
           gradle-version: 8.10.2
 
-      - name: Build debug APK
+      - name: Build debug APK for compile check only
         run: gradle :app:assembleDebug --stacktrace
 
       - name: Decode release keystore
@@ -62,14 +62,8 @@ jobs:
       - name: Explain missing release signing secrets
         if: env.HAS_RELEASE_SECRETS != 'true'
         run: |
-          echo "Release signing secrets are missing. Debug APK was built only."
+          echo "Release signing secrets are missing. Release APK/AAB were not built."
           echo "Add GitHub Secrets: KS_B64, STORE_PASS, KEY_ALIAS, KEY_PASS."
-
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: 3d-live-wallpapers-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
 
       - name: Upload signed release APK
         if: env.HAS_RELEASE_SECRETS == 'true'
