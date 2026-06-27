@@ -11,8 +11,29 @@ android {
         applicationId = "com.walhero.wallpapers"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = (System.getenv("VERSION_CODE") ?: "1").toInt()
+        versionName = System.getenv("VERSION_NAME") ?: "1.0"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getenv("KEYSTORE_FILE") ?: "release-keystore.jks")
+            storePassword = System.getenv("STORE_PASS") ?: ""
+            keyAlias = System.getenv("KEY_ALIAS") ?: "walhero-wallpapers"
+            keyPassword = System.getenv("KEY_PASS") ?: ""
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
     }
 
     compileOptions {
